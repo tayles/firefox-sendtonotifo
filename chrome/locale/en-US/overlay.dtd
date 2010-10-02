@@ -1,0 +1,11 @@
+<!ENTITY sendtonotifo.label "Your localized menuitem">
+<!ENTITY sendtonotifoContext.label "Send to Notifo">
+<!ENTITY sendtonotifoContext.accesskey "N">
+<!ENTITY sendtonotifoToolbarButton.label "Send to Notifo">
+<!ENTITY sendtonotifoToolbarButton.tooltip "Send the selected text or current webpage to Notifo">
+
+<!ENTITY sendtonotifoContext.sendUrl "Send webpage to Notifo">
+<!ENTITY sendtonotifoContext.sendText "Send selected text to Notifo">
+<!ENTITY sendtonotifoContext.sendLink "Send link to Notifo">
+<!ENTITY sendtonotifoContext.sendLink "Send phone number to Notifo">
+<!ENTITY sendtonotifoContext.sendLink "Send email address to Notifo">

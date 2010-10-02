@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?xml-stylesheet href="chrome://sendtonotifo/skin/overlay.css" type="text/css"?>
+<!DOCTYPE overlay SYSTEM "chrome://sendtonotifo/locale/overlay.dtd">
+<overlay id="sendtonotifo-overlay" xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+  <script src="base64.js"/>
+  <script src="overlay.js"/>
+  <script src="ff-overlay.js"/>
+
+  <stringbundleset id="stringbundleset">
+    <stringbundle id="sendtonotifo-strings" src="chrome://sendtonotifo/locale/overlay.properties"/>
+  </stringbundleset>
+
+  <popup id="contentAreaContextMenu">
+    <menuitem id="context-sendtonotifo" label="&sendtonotifoContext.label;"
+              accesskey="&sendtonotifoContext.accesskey;"
+              insertafter="context-stop"
+              oncommand="sendtonotifo.onMenuItemCommand(event)"/>
+  </popup>
+
+  <toolbarpalette id="BrowserToolbarPalette">
+  <toolbarbutton id="sendtonotifo-toolbar-button" class="toolbarbutton-1 chromeclass-toolbar-additional"
+    label="&sendtonotifoToolbarButton.label;" tooltiptext="&sendtonotifoToolbarButton.tooltip;"
+    oncommand="sendtonotifo.onToolbarButtonCommand()"/>
+  </toolbarpalette>
+
+</overlay>

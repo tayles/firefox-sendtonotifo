@@ -1,0 +1,7 @@
+content   sendtonotifo                 chrome/content/
+skin      sendtonotifo   classic/1.0   chrome/skin/
+locale    sendtonotifo   en-US         chrome/locale/en-US/
+
+
+overlay   chrome://browser/content/browser.xul   chrome://sendtonotifo/content/ff-overlay.xul
+style chrome://global/content/customizeToolbar.xul chrome://sendtonotifo/skin/overlay.css

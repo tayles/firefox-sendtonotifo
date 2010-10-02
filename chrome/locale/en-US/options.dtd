@@ -1,0 +1,6 @@
+<!ENTITY prefwindow.title "Send to Notifo">
+<!ENTITY notifoCredentialsPane.title "Send to Notifo">
+<!ENTITY userNamePref.label "Your Notifo username:">
+<!ENTITY userNamePref.accesskey "U">
+<!ENTITY apiSecretPref.label "Notifo API key:">
+<!ENTITY apiSecretPref.accesskey "A">
