@@ -4,7 +4,6 @@
 <overlay id="sendtonotifo-overlay" xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
   <script src="base64.js"/>
   <script src="overlay.js"/>
-  <script src="ff-overlay.js"/>
 
   <stringbundleset id="stringbundleset">
     <stringbundle id="sendtonotifo-strings" src="chrome://sendtonotifo/locale/overlay.properties"/>
@@ -14,6 +13,7 @@
     <menuitem id="context-sendtonotifo" label="&sendtonotifoContext.label;"
               accesskey="&sendtonotifoContext.accesskey;"
               insertafter="context-stop"
+			  image="chrome://sendtonotifo/skin/notifo_logo_16x16.png"
               oncommand="sendtonotifo.onMenuItemCommand(event)"/>
   </popup>
 

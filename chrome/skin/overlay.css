@@ -5,7 +5,7 @@
 }
 #sendtonotifo-toolbar-button
 {
-  list-style-image: url("chrome://sendtonotifo/skin/toolbar-button.png");
+  list-style-image: url("chrome://sendtonotifo/skin/notifo-toolbar-button.png");
   -moz-image-region: rect(0px 24px 24px 0px);
 }
 #sendtonotifo-toolbar-button:hover

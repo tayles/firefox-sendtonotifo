@@ -7,5 +7,5 @@
 <!ENTITY sendtonotifoContext.sendUrl "Send webpage to Notifo">
 <!ENTITY sendtonotifoContext.sendText "Send selected text to Notifo">
 <!ENTITY sendtonotifoContext.sendLink "Send link to Notifo">
-<!ENTITY sendtonotifoContext.sendLink "Send phone number to Notifo">
-<!ENTITY sendtonotifoContext.sendLink "Send email address to Notifo">
+<!ENTITY sendtonotifoContext.sendTel "Send phone number to Notifo">
+<!ENTITY sendtonotifoContext.sendEmail "Send email address to Notifo">

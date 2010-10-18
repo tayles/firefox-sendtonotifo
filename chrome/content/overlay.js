@@ -1,9 +1,16 @@
 var sendtonotifo = {
 
+	defaultTitle: 'Send to Notifo',
+	
+	notificationBarId: 'sendtonotifo-popupbar',
+
 	onLoad: function() {
 			// initialization code
 			this.initialized = true;
-			this.strings = document.getElementById("sendtonotifo-strings");
+			this.strings = document.getElementById('sendtonotifo-strings');
+			
+			document.getElementById('contentAreaContextMenu')
+		        .addEventListener('popupshowing', function(e) { sendtonotifo.showContextMenu(e); }, false);
 		},
 
 	onMenuItemCommand: function(e) {
@@ -16,20 +23,23 @@ var sendtonotifo = {
 
 	getPrefs: function() {
 			if( !this.prefs ) {
-				this.prefs = Components.classes["@mozilla.org/preferences-service;1"].getService(Components.interfaces.nsIPrefBranch).getBranch("extensions.sendtonotifo.");
+				this.prefs = Components.classes["@mozilla.org/preferences-service;1"]
+									.getService(Components.interfaces.nsIPrefBranch)
+									.getBranch("extensions.sendtonotifo.");
 			}
 			return this.prefs;
 		},
 		
 	getPromptService: function() {
 			if( !this.promptService ) {
-				this.promptService = Components.classes["@mozilla.org/embedcomp/prompt-service;1"].getService(Components.interfaces.nsIPromptService);
+				this.promptService = Components.classes["@mozilla.org/embedcomp/prompt-service;1"]
+											.getService(Components.interfaces.nsIPromptService);
 			}
 			return this.promptService;
 		},
 	
 	getSelectedText: function() {
-			return window.content.getSelection();
+			return window.content.getSelection().toString();
 		},
 
 	getCurrentUrl: function() {
@@ -54,7 +64,7 @@ var sendtonotifo = {
 			var docTitle = this.getCurrentTitle();
 			
 			var notification = {
-				msg:	( selTxt.length ? selTxt : curUrl ),
+				msg:	( selTxt.length > 0 ? selTxt : curUrl ),
 				title:	docTitle,
 				label:	"Firefox",
 				uri:	curUrl
@@ -95,20 +105,24 @@ var sendtonotifo = {
 				title:	notification.title,
 			};
 			
-			params = this.serialiseParams(params);
-			var promptService = sendtonotifo.getPromptService();
-			promptService.alert(window, "Send to Notifo", params);
+			this.displayNotificationBar('Submitting to Notifo...', 'info');
 			
+			params = this.serialiseParams(params);
+			
+			var self = this;
 			req.onreadystatechange = function() {
 				if (this.readyState == 4) {
-					var promptService = sendtonotifo.getPromptService();
+					//self.clearNotificationBar();
 					var resp = this.responseText;
 					switch (req.status) {
 						case 200:
-							promptService.alert(window, "Send to Notifo", "Message sent:\n" + resp);
+							//self.displayToast('Notification sent successfully');
+							self.displayNotificationBar('Sent!', 'info');
+							self.clearNotificationBarWithTimeout(500);
 							break;
-						default:                
-							promptService.alert(window, "Send to Notifo", "Failed to send to Notifo:\n" + resp);
+						default:
+							self.displayNotificationBar('Failed to send item to Notifo: ' + resp, 'error');
+							self.clearNotificationBarWithTimeout(4000);
 							break;
 					}
 				}
@@ -117,6 +131,115 @@ var sendtonotifo = {
 			req.setRequestHeader('Authorization', auth);
 			req.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
 			req.send(params);
+		},
+		
+	displayAlert: function(msg, title) {
+			title = title || this.defaultTitle;
+			var promptService = this.getPromptService();
+			promptService.alert(window, title, msg);
+		},
+	
+	displayToast: function(msg, title) {
+			title = title || this.defaultTitle;
+			try {
+				Components.classes['@mozilla.org/alerts-service;1']
+					.getService(Components.interfaces.nsIAlertsService)
+					.showAlertNotification(
+							'chrome://sendtonotifo/skin/notifo_logo_32x32.png',
+							title,
+							msg,
+							false,
+							'',
+							null
+						);
+			}
+			catch(e) {
+				// prevents runtime error on platforms that don't implement nsIAlertsService
+				this.displayAlert(title, msg);
+			}
+		},
+		
+	displayNotificationBar: function(msg, priorityLevel) {
+			var nb = gBrowser.getNotificationBox();
+			var n = nb.getNotificationWithValue(sendtonotifo.notificationBarId);
+			
+			var priority;
+			switch(priorityLevel) {
+				case 'error':
+					priority = nb.PRIORITY_WARNING_LOW;
+					break;
+				case 'info':
+				default:
+					priority = nb.PRIORITY_INFO_LOW;
+					break;
+			}
+			
+			if(n) {
+				if( n.priority == priority ) {
+					n.label = msg;
+					return;
+				}
+				else {
+					// cannot change priority of current bar so hide and create a new one...
+					sendtonotifo.clearNotificationBar();
+				}
+			}
+			
+			nb.appendNotification(
+					msg,
+					sendtonotifo.notificationBarId,
+					'chrome://sendtonotifo/skin/notifo_logo_16x16.png',
+					priority,
+					null
+				);
+		},
+		
+	clearNotificationBar: function() {
+			var nb = gBrowser.getNotificationBox();
+			nb.removeNotification(nb.getNotificationWithValue(sendtonotifo.notificationBarId));
+		},
+	
+	
+	clearNotificationBarWithTimeout: function(millis) {
+			var self = this;
+			setTimeout( function() { self.clearNotificationBar(); }, millis );
+		},
+							
+	showContextMenu: function(e) {
+			var menuItem = document.getElementById('context-sendtonotifo');
+			
+			if(menuItem) {
+				if( gContextMenu.onTextInput ) {
+					menuItem.hidden = true;
+					return;
+				}
+				
+				// reset
+				menuItem.hidden = false;
+					
+				if( gContextMenu.onImage ) {
+					menuItem.label = 'Send Image to Notifo';
+					return;
+				}
+				if( gContextMenu.onMailtoLink ) {
+					menuItem.label = 'Send Email to Notifo';
+					return;
+				}
+				if( gContextMenu.onLink ) {
+					menuItem.label = 'Send Link to Notifo';
+					return;
+				}
+				if( gContextMenu.isTextSelected ) {
+					var selTxt = this.getSelectedText().trim();
+					if( selTxt.length > 10 )
+						selTxt = selTxt.substring(0, 10).trim() + '...';
+
+					menuItem.label = 'Send "' + selTxt + '" to Notifo';
+					return;
+				}
+				
+				menuItem.label = 'Send Page to Notifo';
+			}
 		}
 };
 
@@ -136,4 +259,6 @@ sendtonotifo.substitutions = {
 };
 
 
-window.addEventListener("load", sendtonotifo.onLoad, false);
+window.addEventListener('load', sendtonotifo.onLoad, false);
+
+String.prototype.trim = function() { return this.replace(/^\s+|\s+$/, ''); };
