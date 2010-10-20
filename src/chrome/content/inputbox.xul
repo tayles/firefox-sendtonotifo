@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?xml-stylesheet href="chrome://global/skin/" type="text/css"?>
+
+<!DOCTYPE dialog SYSTEM "chrome://sendtonotifo/locale/about.dtd">
+
+<dialog
+	id="sendtonotifo-customtextdialog"
+	title="Send text to Notifo"
+	orient="vertical"
+	autostretch="always"
+	onload="sizeToContent();handleLoad();"
+	onkeypress="handleKeyPress(event);"
+	buttons="accept,cancel"
+	ondialogaccept="return handleCustomInputAccept();"
+	persist="screenX screenY width height"
+	xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+	
+	<script type="application/javascript" src="chrome://sendtonotifo/content/inputbox.js" />
+
+	<description>
+	  Enter any text here to send it to your Notifo account:
+	</description>
+
+	<textbox
+		id="sendtonotifo-customtextinput"
+		multiline="true" />
+
+</dialog>
