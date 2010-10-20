@@ -4,6 +4,13 @@ Send to Notifo
 Quickly send a webpage, map, phone number to your iPhone from Firefox.
 
 
+Features:
+---------
+
+- Supports drag/drop links, images and text onto the toolbar button
+- Supports URL substitutions to open applications such as Skype, Twitter and Maps directly (see below).
+
+
 
 The following URL substitutions are supported, providing a streamlined workflow:
 
@@ -19,12 +26,15 @@ The following URL substitutions are supported, providing a streamlined workflow:
 - Skype *(skype:d.tayles)*
 
 
+
+
+
 Todo:
 -----
 
 - Enable/disable individual/all URL substitutions through prefs pane
 - Keyboard shortcuts to paste directly from clipboard
 - Better UI to enter text manually
-- Handle drag/drop onto the toolbar icon
+<del>- Handle drag/drop onto the toolbar icon</del>
 - Heuristics when submitting webpages to extract correct title etc
 - Allow custom URL substitutions

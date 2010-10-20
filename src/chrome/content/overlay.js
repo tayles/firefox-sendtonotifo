@@ -1,4 +1,4 @@
-function debugNotifo(msg) {
+function debug(msg) {
   var consoleService = Components.classes["@mozilla.org/consoleservice;1"]
                                  .getService(Components.interfaces.nsIConsoleService);
 
@@ -28,6 +28,8 @@ var sendtonotifo = {
 	
 	notifo_api_url: 'https://api.notifo.com/v1/send_notification',
 	
+	defaultTruncationLength: 10,
+	
 	substitutions: {
 			google_directions: { title: 'Directions', url_regex: 'http://maps\.google\.[a-z\.]{2,6}/maps\?(.*(?=saddr=([^&]+)).*(?=daddr=([^&]+)).*)', url: 'http://maps.google.com/maps?$1', msg: function(str, p1, p2, p3) { return p2.clean().capitalise() + ' -> ' + p3.clean().capitalise(); } },	// http://maps.google.co.uk/maps?f=d&source=s_d&saddr=reading&daddr=london&hl=en&geocode=FUEkEQMdgDbx_ym3PT3ZeCB0SDGUefrOf5_hKg%3BFXjUEQMd5BL-_yl13iGvC6DYRzGZKtXdWjqWUg&mra=ls&sll=53.800651,-4.064941&sspn=18.514185,57.084961&ie=UTF8&t=h&z=11
 			google_goto: { title: 'Directions', url_regex: 'http://maps\.google\.[a-z\.]{2,6}/maps\?(.*(?=daddr=([^&]+)).*)', url: 'http://maps.google.com/maps?$1', msg: capitalise },	// http://maps.google.co.uk/maps?f=d&source=s_d&saddr=reading&daddr=london&hl=en&geocode=FUEkEQMdgDbx_ym3PT3ZeCB0SDGUefrOf5_hKg%3BFXjUEQMd5BL-_yl13iGvC6DYRzGZKtXdWjqWUg&mra=ls&sll=53.800651,-4.064941&sspn=18.514185,57.084961&ie=UTF8&t=h&z=11
@@ -48,8 +50,13 @@ var sendtonotifo = {
 			this.initialized = true;
 			this.strings = document.getElementById('sendtonotifo-strings');
 			
+			// listen for context menu opening
 			document.getElementById('contentAreaContextMenu')
 		        .addEventListener('popupshowing', function(evt) { sendtonotifo.handleContextMenuPopupShowing(evt); }, false);
+			
+			// listen for toolbar dropdown opening
+			document.getElementById('sendtonotifo-toolbarbutton-menu')
+		        .addEventListener('popupshowing', function(evt) { sendtonotifo.handleToolbarMenuPopupShowing(evt); }, false);
 		},
 
 	getPrefs: function() {
@@ -69,8 +76,15 @@ var sendtonotifo = {
 			return this.promptService;
 		},
 	
-	getSelectedText: function() {
-			return window.content.getSelection().toString();
+	getSelectedText: function(truncate) {
+			var selTxt = window.content.getSelection().toString().trim();
+			
+			if( truncate === true ) truncate = this.defaultTruncationLength;
+			
+			if( truncate && selTxt.length > truncate )
+				selTxt = selTxt.substring(0, truncate).trim() + '...';
+
+			return selTxt
 		},
 
 	getCurrentUrl: function() {
@@ -90,7 +104,7 @@ var sendtonotifo = {
 		},
 
 	post: function(evt) {
-			debugNotifo("post");
+			debug("post");
 			var selTxt = this.getSelectedText();
 			var curUrl = this.getCurrentUrl();
 			var docTitle = this.getCurrentTitle();
@@ -111,13 +125,13 @@ var sendtonotifo = {
 	
 	performSubstitutions: function(notification) {
 			
-			debugNotifo("performSubstitutions");
+			debug("performSubstitutions");
 			
 			notification = this.performUrlSubstitutions(notification);
 		
 			notification = this.performMsgSubstitutions(notification);
 		
-			//debugNotifo(notification);		
+			//debug(notification);		
 		
 			return notification;
 		},
@@ -133,7 +147,7 @@ var sendtonotifo = {
 				var subst = this.substitutions[key];
 				var regexp = new RegExp( '^' + subst.url_regex + '$' , 'i');
 				if( regexp.test(uri) ) {
-					debugNotifo("matched on " + subst.title);
+					debug("matched on " + subst.title);
 					// match found. replace title, url and possibly msg
 					if( subst.url ) notification.uri = uri.replace(regexp, subst.url);
 					if( subst.title ) notification.title = subst.title;
@@ -155,7 +169,7 @@ var sendtonotifo = {
 		},
 		
 	send: function(notification) {
-			debugNotifo("send");
+			debug("send");
 			var req = new XMLHttpRequest();
 			var creds = this.getCredentials();
 			var auth = 'Basic ' + Base64.encode(creds.userName + ':' + creds.apiSecret);
@@ -277,7 +291,7 @@ var sendtonotifo = {
 
 		
 	handleContextMenuPopupShowing: function(evt) {
-			debugNotifo("handleContextMenuPopupShowing");
+			debug("handleContextMenuPopupShowing");
 			var menuItem = document.getElementById('sendtonotifo-contextmenuitem');
 			
 			if(menuItem) {
@@ -302,9 +316,7 @@ var sendtonotifo = {
 					return;
 				}
 				if( gContextMenu.isTextSelected ) {
-					var selTxt = this.getSelectedText().trim();
-					if( selTxt.length > 10 )
-						selTxt = selTxt.substring(0, 10).trim() + '...';
+					var selTxt = this.getSelectedText(true);
 
 					menuItem.label = 'Send "' + selTxt + '" to Notifo';
 					return;
@@ -314,8 +326,15 @@ var sendtonotifo = {
 			}
 		},
 		
+	handleToolbarMenuPopupShowing: function(evt) {
+			var selTxt = this.getSelectedText(true);
+			var menuItem = document.getElementById('sendtonotifo-menuitem-sendselectedtext');
+			menuItem.hidden = (!selTxt);
+			if( selTxt ) menuItem.label = 'Send selected text ("' + selTxt + '")';
+		},
+		
 	handleContextMenuCommand: function(evt) {
-			debugNotifo("handleContextMenuCommand");
+			debug("handleContextMenuCommand");
 			var el = document.popupNode;
 			var isImage = (el instanceof Components.interfaces.nsIImageLoadingContent && el.currentURI);
 
@@ -336,9 +355,95 @@ var sendtonotifo = {
 		},
 
 	handleToolbarButtonCommand: function(evt) {
-			debugNotifo("handleToolbarButtonCommand");
+			debug("handleToolbarButtonCommand");
 			this.post(evt);
 		},
+		
+	updateToolbarTooltip: function(evt) {
+			// update tooltip based on selected text, current page url etc
+			var bttn = document.getElementById('sendtonotifo-toolbarbutton');
+			
+			var selTxt = this.getSelectedText(true);
+			//var curUrl = this.getCurrentUrl();
+			
+			if( selTxt ) bttn.tooltipText = 'Send select text ("' + selTxt + '") and URL to Notifo';
+			else bttn.tooltipText = 'Send webpage to Notifo';
+		},
+	
+	handleToolbarDragEnter: function(evt) {
+			debug(evt.dataTransfer.types);
+		},
+		
+	handleToolbarDragOver: function(evt) {
+			// drop accepted
+			evt.preventDefault();
+			return false;
+		},
+		
+	handleToolbarDragDrop: function(evt) {
+			var txt = evt.dataTransfer.getData("text/plain");
+			var curUrl = this.getCurrentUrl();
+			
+			var notification;
+			
+			if( evt.dataTransfer.types.contains('application/x-moz-nativeimage') ) {
+				// image
+				notification = {
+					msg:	txt,
+					title:	'Image',
+					label:	'Firefox',
+					uri:	txt
+				};
+			}
+			else if( evt.dataTransfer.types.contains('application/x-moz-tabbrowser-tab') ) {
+				// tab
+				var tabUrl = evt.dataTransfer.getData("text/x-moz-text-internal");
+				debug(tabUrl);
+				notification = {
+					msg:	tabUrl,
+					title:	'Link',
+					label:	'Firefox',
+					uri:	tabUrl
+				};
+			}
+			else if( evt.dataTransfer.types.contains('text/uri-list') || evt.dataTransfer.types.contains('text/x-moz-url') ) {
+				// link
+				notification = {
+					msg:	txt,
+					title:	'Link',
+					label:	'Firefox',
+					uri:	txt
+				};
+			}
+			else if( evt.dataTransfer.types.contains('text/html') ) {
+				// html text - assume this is selected text from the current url
+				notification = {
+					msg:	txt,
+					title:	'Link',
+					label:	'Firefox',
+					uri:	curUrl
+				};
+			}
+			else {
+				// plain text - could have come from anywhere and could be a link - set the uri = txt to allow potential substitutions
+				notification = {
+					msg:	txt,
+					title:	'Text',
+					label:	'Firefox',
+					uri:	txt
+				};
+			}
+			
+			if( notification ) {
+				debug(notification);
+				notification = this.performSubstitutions(notification);
+				debug("after");
+				debug(notification);
+				this.send(notification);
+				evt.preventDefault();
+			}
+		},
+
 		
 	handleSendPageCommand: function(evt) {
 			this.post(evt);

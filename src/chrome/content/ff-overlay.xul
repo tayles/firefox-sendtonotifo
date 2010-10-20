@@ -28,10 +28,15 @@
 			type="menu-button"
 			class="toolbarbutton-1 chromeclass-toolbar-additional"
 			label="&sendtonotifoToolbarButton.label;"
-			image="chrome://sendtonotifo/skin/notifo_logo_24x24.png"
-			tooltiptext="&sendtonotifoToolbarButton.tooltip;"
-			oncommand="sendtonotifo.handleToolbarButtonCommand(event)">
-		  <menupopup>
+			image="chrome://sendtonotifo/skin/notifo_logo_16x16.png"
+			dragEffect="copy"
+			ondragenter="sendtonotifo.handleToolbarDragEnter(event)"
+			ondragover="return sendtonotifo.handleToolbarDragOver(event)"
+			ondrop="sendtonotifo.handleToolbarDragDrop(event)"
+			oncommand="sendtonotifo.handleToolbarButtonCommand(event)"
+			onmouseover="sendtonotifo.updateToolbarTooltip(event)"
+			onfocus="sendtonotifo.updateToolbarTooltip(event)">
+		  <menupopup id="sendtonotifo-toolbarbutton-menu">
 			<menuitem
 				id="sendtonotifo-menuitem-sendcurrentpage"
 				label="&sendtonotifoSendCurrentPageMenuItem.label;"
