@@ -1,1 +1,0 @@
-See <https://developer.mozilla.org/en/Building_an_Extension#Test> for details on how to build this extension.

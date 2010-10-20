@@ -117,24 +117,7 @@ var sendtonotifo = {
 		
 			notification = this.performMsgSubstitutions(notification);
 		
-			//debugNotifo(notification);
-			
-			/*
-			var regex = {
-				uk_tel_num: "(\+\d)*\s*(\(\d{3}\)\s*)*\d{3}(-{0,1}|\s{0,1})\d{2}(-{0,1}|\s{0,1})\d{2}",
-				google_qr_code: "http://chart\.apis\.google\.com/chart\?(?=.*cht=qr).*chl=([^&]+)"	// http://chart.apis.google.com/chart?chl=hkjshfjksdh+fhsjkf+hdjkgsdc&chs=200x200&cht=qr
-			};
-	
-			// perform replacements on msg
-			var rx = new RegExp(regex.uk_tel_num, 'i');
-			if( rx.test(notification.msg) ) {
-				// remove all non digits from number
-				notification.uri = 'tel:' + notification.msg.replace(/[^\d\+]+/gi, '');
-			}
-			
-			// perform replacements on url
-			*/
-		
+			//debugNotifo(notification);		
 		
 			return notification;
 		},
