@@ -4,7 +4,7 @@
     <em:id>sendtonotifo@tayles.co.uk</em:id>
     <em:type>2</em:type>
     <em:name>Send to Notifo</em:name>
-    <em:version>0.2</em:version>
+    <em:version>0.3</em:version>
     <em:creator>David Taylor</em:creator>
     <em:description>Send a link, map, url or any text to your Notifo account.</em:description>
 	<em:homepageURL>http://github.com/tayles/firefox-sendtonotifo</em:homepageURL>
